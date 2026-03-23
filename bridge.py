@@ -1,15 +1,21 @@
+import os
 from fastapi import FastAPI, Request
 from linebot.v3 import WebhookHandler
-from linebot.v3.messaging import Configuration, ApiClient, MessagingApi, MessagingApiBlob, ReplyMessageRequest, TextMessage
+from linebot.v3.messaging import Configuration, ApiClient, MessagingApi, ReplyMessageRequest, TextMessage
 from linebot.v3.webhooks import MessageEvent, FileMessage
 
 app = FastAPI()
 
-# --- ใส่ข้อมูลของคุณตรงนี้ ---
-CONF = Configuration(access_token='ก๊อปปี้ Access Token มาวางที่นี่')
-HANDLER = WebhookHandler('ก๊อปปี้ Channel Secret มาวางที่นี่')
-LIFF_URL = "https://liff.line.me/YOUR_LIFF_ID" # ใส่ LIFF ID ของคุณ
-# -----------------------
+# --- These lines now pull from the Render Environment Variables ---
+access_token = os.environ.get('LINE_CHANNEL_ACCESS_TOKEN')
+channel_secret = os.environ.get('LINE_CHANNEL_SECRET')
+
+# IMPORTANT: Replace this with your actual LIFF URL from the LINE Console
+LIFF_URL = "https://liff.line.me/YOUR_LIFF_ID" 
+
+CONF = Configuration(access_token=access_token)
+HANDLER = WebhookHandler(channel_secret)
+# ---------------------------------------------------------------
 
 @app.post("/callback")
 async def callback(request: Request):
@@ -20,12 +26,13 @@ async def callback(request: Request):
 
 @HANDLER.add(MessageEvent, message=FileMessage)
 def handle_file(event):
-    # ดึง File ID เพื่อส่งต่อไปยัง Streamlit
+    # This grabs the unique ID of the file the user just sent
     file_id = event.message.id
     
     with ApiClient(CONF) as api_client:
         messaging_api = MessagingApi(api_client)
-        # ส่งข้อความตอบกลับพร้อมลิงก์ LIFF
+        
+        # This sends the link back to the user
         response_text = f"ได้รับไฟล์แล้วครับ! 📊 กดดูวิเคราะห์ได้ที่นี่: {LIFF_URL}?file_id={file_id}"
         
         messaging_api.reply_message(
