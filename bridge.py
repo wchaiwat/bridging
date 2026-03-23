@@ -11,7 +11,7 @@ access_token = os.environ.get('LINE_CHANNEL_ACCESS_TOKEN')
 channel_secret = os.environ.get('LINE_CHANNEL_SECRET')
 
 # IMPORTANT: Replace this with your actual LIFF URL from the LINE Console
-LIFF_URL = "https://liff.line.me/YOUR_LIFF_ID" 
+LIFF_URL = "https://liff.line.me/2009574246-YjKui6w5" 
 
 CONF = Configuration(access_token=access_token)
 HANDLER = WebhookHandler(channel_secret)
